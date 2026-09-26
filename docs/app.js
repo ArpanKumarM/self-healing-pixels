@@ -127,6 +127,41 @@ async function render() {
 
 let frames = 0;
 let fpsClock = performance.now();
+// --- watchdog ------------------------------------------------------------------------------------
+// Trained models are stable under the damage they saw in training, but unusual damage can very
+// occasionally push the cells into runaway growth that fills the grid, and heavy cutting can kill
+// the pattern outright. A healthy pattern keeps 10-25% of cells alive, so both cases are easy to spot.
+const RUNAWAY_ALIVE = 0.45;
+let watchPending = false;
+let deadChecks = 0;
+let toastTimer = null;
+
+function toast(message) {
+  status.textContent = message;
+  status.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => (status.hidden = true), 2500);
+}
+
+function watchdog() {
+  if (watchPending || paused || !state) return;
+  watchPending = true;
+  const aliveFraction = tf.tidy(() => state.slice([0, 0, 0, 3], [-1, -1, -1, 1]).greater(0.1).cast("float32").mean());
+  aliveFraction.data().then(([alive]) => {
+    aliveFraction.dispose();
+    watchPending = false;
+    deadChecks = alive === 0 ? deadChecks + 1 : 0;
+    if (alive > RUNAWAY_ALIVE) {
+      toast("The cells lost control and filled the grid, regrowing from a seed");
+      regrow();
+    } else if (deadChecks >= 3) {
+      toast("Nothing left to heal, regrowing");
+      regrow();
+      deadChecks = 0;
+    }
+  });
+}
+
 async function loop() {
   if (nca && state) {
     applyDamage();
@@ -134,6 +169,7 @@ async function loop() {
       for (let i = 0; i < speed; i++) setState(nca.step(state));
       steps += speed;
     }
+    if (frames % 30 === 0) watchdog();
     await render();
     $("steps").textContent = steps.toLocaleString();
     frames++;

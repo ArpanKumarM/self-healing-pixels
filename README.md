@@ -146,6 +146,8 @@ Each model trained for 4,000 iterations, about 60 minutes on an M3 Pro (three tr
 
 The paper trains for 8,000 iterations. More training, especially for the sunflower and fish, should improve long-run stability.
 
+**Runaway growth.** The models are stable under the damage they were trained on. In tests, 30,000+ steps of repeated cutting at 0° and 120° never broke them, in PyTorch or in Chrome on an M3 GPU. Unusual damage can still occasionally push the cells into runaway growth that fills the whole grid, and heavy cutting can kill a pattern outright. The demo watches for both: if more than 45% of cells are alive (healthy patterns peak at 11–19%) or nothing is alive, it regrows from a seed and says why.
+
 ## Credits
 
 - Method: [Growing Neural Cellular Automata](https://distill.pub/2020/growing-ca/), Alexander Mordvintsev, Ettore Randazzo, Eyvind Niklasson, Michael Levin. *Distill*, 2020.
