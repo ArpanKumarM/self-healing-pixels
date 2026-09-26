@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Self-Healing Pixels</title>
+<meta name="description" content="Neural cellular automata that grow an image from a single pixel and heal when you cut them. Runs entirely in your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Self-Healing Pixels</h1>
+    <p class="lede">Every pixel runs the same tiny neural network and sees only its 8 neighbours. Nothing
+      coordinates them, yet together they grow a whole picture from one seed and rebuild it when it's destroyed.
+      <strong>Drag across the image to cut it.</strong></p>
+  </header>
+
+  <section class="stage">
+    <div class="canvas-wrap">
+      <canvas id="canvas" width="72" height="72" aria-label="Neural cellular automaton. Drag to erase cells."></canvas>
+      <div id="status" class="status">Loading…</div>
+    </div>
+
+    <div class="panel">
+      <div class="emoji-picker" id="picker" role="radiogroup" aria-label="Pattern"></div>
+
+      <div class="buttons">
+        <button id="reset" title="Start again from a single cell">🌱 Regrow from seed</button>
+        <button id="halve" title="Delete the right half">✂️ Cut in half</button>
+        <button id="blast" title="Punch random holes">💥 Blast holes</button>
+        <button id="pause" title="Pause / resume">⏸ Pause</button>
+      </div>
+
+      <label class="control">
+        <span>Brush size <output id="brushOut">8</output></span>
+        <input id="brush" type="range" min="2" max="20" value="8">
+      </label>
+      <label class="control">
+        <span>Speed <output id="speedOut">2 steps/frame</output></span>
+        <input id="speed" type="range" min="1" max="8" value="2">
+      </label>
+      <label class="control">
+        <span>Rotate the physics <output id="angleOut">0°</output></span>
+        <input id="angle" type="range" min="0" max="360" value="0" step="5">
+        <small>The model was never trained on rotation. Turning its sense of direction makes it grow a rotated image anyway.</small>
+      </label>
+      <label class="toggle">
+        <input id="hidden" type="checkbox">
+        <span>Show hidden channels (the cells' private "thoughts")</span>
+      </label>
+
+      <p class="stats"><span id="steps">0</span> steps · <span id="fps">–</span> fps</p>
+    </div>
+  </section>
+
+  <section class="explain">
+    <h2>How does this work?</h2>
+    <ol>
+      <li><strong>Each cell holds 16 numbers.</strong> Four are its visible colour (RGBA); twelve are hidden, a private
+        memory the network learned to use for signalling.</li>
+      <li><strong>Each step, a cell looks at its 3×3 neighbourhood</strong> through three fixed filters: its own value
+        and the horizontal and vertical gradients.</li>
+      <li><strong>A tiny network (≈8,000 parameters) decides how to change the cell's state.</strong> Every cell uses
+        the same weights, and cells fire at random, so there is no global clock.</li>
+      <li><strong>Cells are alive only next to a mature cell</strong> (alpha &gt; 0.1). Everything else stays empty.</li>
+    </ol>
+    <p>Training starts from a single live pixel, runs 64–96 steps, and compares the result to the target emoji.
+      The trick that makes it heal: training keeps a pool of its own past outputs, continues from them, and punches
+      random holes in some. So the network learns not just to <em>grow</em> the image but to <em>keep</em> it and
+      <em>repair</em> it. It never saw a straight cut or the rotations you can try here.</p>
+    <p class="credit">Based on <a href="https://distill.pub/2020/growing-ca/">Growing Neural Cellular Automata</a>
+      (Mordvintsev, Randazzo, Niklasson &amp; Levin, Distill 2020). Trained from scratch on an M3 MacBook in PyTorch;
+      runs in your browser with TensorFlow.js. Emoji from <a href="https://github.com/googlefonts/noto-emoji">Noto
+      Emoji</a> (Apache 2.0). <a href="https://github.com/ArpanKumarM/self-healing-pixels">Source on GitHub</a>.</p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+<script src="nca.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

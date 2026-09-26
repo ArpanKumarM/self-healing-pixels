@@ -1,0 +1,8 @@
+{
+  "name": "self-healing-pixels",
+  "private": true,
+  "description": "Dev dependency for testing docs/nca.js against PyTorch",
+  "devDependencies": {
+    "@tensorflow/tfjs": "4.22.0"
+  }
+}
