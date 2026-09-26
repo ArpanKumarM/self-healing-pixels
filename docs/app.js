@@ -1,8 +1,11 @@
 // Interactive demo: load a trained NCA, run it every animation frame, let the user damage it.
 const MODELS = [
   { name: "lizard", emoji: "🦎" },
+  { name: "butterfly", emoji: "🦋" },
   { name: "mushroom", emoji: "🍄" },
+  { name: "octopus", emoji: "🐙" },
   { name: "sunflower", emoji: "🌻" },
+  { name: "fish", emoji: "🐠" },
 ];
 
 const $ = id => document.getElementById(id);

@@ -8,6 +8,10 @@
   <img src="assets/lizard.gif" width="216" alt="Lizard growing from one pixel, then healing after being cut in half and slashed">
   <img src="assets/mushroom.gif" width="216" alt="Mushroom growing and healing">
   <img src="assets/sunflower.gif" width="216" alt="Sunflower growing and healing">
+  <br>
+  <img src="assets/butterfly.gif" width="216" alt="Butterfly growing and healing">
+  <img src="assets/octopus.gif" width="216" alt="Octopus growing and healing">
+  <img src="assets/fish.gif" width="216" alt="Fish growing and healing">
 </p>
 
 Every pixel in these images runs **the same tiny neural network** (about 8,000 parameters) and can only see its 8 neighbours. There is no central controller, no global view, and not even a shared clock: cells update at random. Even so, starting from **a single pixel**, the cells grow a complete emoji. When you cut it apart, they **regenerate** the missing piece.
@@ -129,15 +133,18 @@ The key test, **`test_browser_step_matches_pytorch`**, feeds the same weights an
 
 ## Results and limitations
 
-Each model trained for 4,000 iterations, about 60 minutes on an M3 Pro. Losses are the final training MSE against the target:
+Each model trained for 4,000 iterations, about 60 minutes on an M3 Pro (three trained in parallel). Losses are the final training MSE against the target:
 
 | Pattern | Training loss | Grows | Heals a half-cut | Stable for 2,000+ steps |
 |---|---:|:-:|:-:|:-:|
 | 🦎 Lizard | 0.00015 | ✅ | ✅ | ✅ |
 | 🍄 Mushroom | 0.0031 | ✅ | ✅ (spots can regrow slightly differently) | ✅ |
 | 🌻 Sunflower | 0.0022 | ✅ | ✅ | ⚠️ slowly loses petals over very long runs |
+| 🦋 Butterfly | 0.00037 | ✅ | ✅ | ✅ |
+| 🐙 Octopus | 0.0026 | ✅ | ✅ (tentacles can regrow slightly differently) | ✅ |
+| 🐠 Fish | 0.0014 | ✅ | ✅ | ⚠️ stripe pattern slowly drifts over very long runs |
 
-The paper trains for 8,000 iterations. More training, especially for the sunflower, should improve long-run stability.
+The paper trains for 8,000 iterations. More training, especially for the sunflower and fish, should improve long-run stability.
 
 ## Credits
 

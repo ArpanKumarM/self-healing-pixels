@@ -6,3 +6,4 @@ node_modules/
 checkpoints/
 logs/
 .DS_Store
+brag-output/
