@@ -24,6 +24,12 @@ let grid = null;           // [1, size, size, 2] cell coordinates, for circular 
 let pendingCuts = [];      // damage queued by pointer events, applied between steps
 let loading = null;
 
+function regrow() {
+  if (!nca) return;
+  setState(seedState(tf, size, nca.channels));
+  steps = 0;
+}
+
 function setState(next) {
   if (state) state.dispose();
   state = next;
@@ -162,7 +168,7 @@ function init() {
     picker.appendChild(b);
   }
 
-  $("reset").addEventListener("click", () => { if (nca) { setState(seedState(tf, size, nca.channels)); steps = 0; } });
+  $("reset").addEventListener("click", regrow);
   $("halve").addEventListener("click", () =>
     pendingCuts.push(() => grid.slice([0, 0, 0, 1], [-1, -1, -1, 1]).less(size / 2).cast("float32")));
   $("blast").addEventListener("click", () => {
@@ -176,7 +182,13 @@ function init() {
   $("hidden").addEventListener("change", e => (showHidden = e.target.checked));
   bindRange("brush", "brushOut", v => v, v => (brush = v));
   bindRange("speed", "speedOut", v => `${v} step${v > 1 ? "s" : ""}/frame`, v => (speed = v));
-  bindRange("angle", "angleOut", v => `${v}°`, v => nca && nca.setAngle((v * Math.PI) / 180));
+  // A grown body can't turn: every cell would start building a rotated lizard where it stands,
+  // leaving several bodies. So a new angle regrows from a seed, which grows one clean rotated copy.
+  bindRange("angle", "angleOut", v => `${v}°`, v => {
+    if (!nca) return;
+    nca.setAngle((v * Math.PI) / 180);
+    regrow();
+  });
 
   const requested = new URLSearchParams(location.search).get("m");
   loadModel(MODELS.some(m => m.name === requested) ? requested : "lizard");

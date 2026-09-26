@@ -29,7 +29,7 @@ This is a *Neural Cellular Automaton*, a reimplementation of [Growing Neural Cel
 | **Drag across the image** | You erase cells. The survivors notice what's missing and rebuild it. |
 | **✂️ Cut in half** | Half the organism regrows the other half. |
 | **🌱 Regrow from seed** | Watch the whole image develop from a single cell. |
-| **Rotate the physics** | The image grows *rotated*, even though the model never saw rotation in training (see below). |
+| **Rotate the physics** | It regrows from a seed at the new angle, *rotated*, even though the model never saw rotation in training (see below). |
 | **Show hidden channels** | See the cells' private "memory": 3 of the 12 hidden values they learned to use for signalling. |
 
 ---
@@ -68,7 +68,7 @@ It never saw a straight cut, a diagonal slash or a rotation. It handles those an
 
 ### Why rotation works
 
-Cells only know which way is "up" through the Sobel filters. Rotating those two filters by an angle θ turns every cell's sense of direction together, so the organism grows rotated by θ, with no retraining. In the demo, the slider rebuilds the perception kernel live.
+Cells only know which way is "up" through the Sobel filters. Rotating those two filters by an angle θ turns every cell's sense of direction together, so the organism grows rotated by θ, with no retraining. In the demo, the slider rebuilds the perception kernel and regrows from a seed. Rotating an organism that's already grown doesn't work: each existing cell starts building a rotated lizard where it stands, and you get several bodies. The model learned to heal damage, not to turn.
 
 ---
 
